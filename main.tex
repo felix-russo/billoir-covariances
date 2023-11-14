@@ -2,9 +2,11 @@
 
 \usepackage{theme/acts}
 
-\usepackage{lipsum}
+\usepackage{mathtools}
+\usepackage{bm}
 
 \input{metadata.tex}
+\input{macros.sty}
 
 \begin{document}
 
@@ -16,72 +18,186 @@
 
 \tableofcontents
 
-\section{Introduction}
-
-We closely follow the description in \cite{adams1995}.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.7\textwidth]{example-image-a}
-    \caption{This is a caption for a figure!}
-    \label{fig:example_a}
-\end{figure}
-
-\lipsum[1] 
-
-As discussed in \autoref{fig:example_a}, the results are very promising.
-
-\section{Method}
-
-\begin{figure}[ht]
-    \begin{subfigure}{0.5\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{example-image-a}
-        \caption{This is a caption for a figure!}
-        \label{fig:sub:example_a}
-    \end{subfigure}
-    \begin{subfigure}{0.5\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{example-image-b}
-        \caption{This is a caption for a figure!}
-        \label{fig:sub:example_b}
-    \end{subfigure}
-
-    \caption{This is a combined caption, \subref{fig:sub:example_a} shows one
-    thing, \subref{fig:sub:example_b} shows another thing}
-    \label{fig:sub}
-\end{figure}
-
-\lipsum[1] 
-
-See \autoref{fig:sub} for an example of a combined figure.
-
-\lipsum[1] 
-
-\begin{equation}
-    a^2 + b^2 = c^2
-    \label{eq:pythagoras}
-\end{equation}
-
-The business with the triangles, our boy Pythagoras has already figured out, according to \autoref{eq:pythagoras}.
-
-\section{Conclusion}
-
-\lipsum[1] 
-
-\appendix
-
-\section{Auxiliary material}
-\subsection{First subsection}
-
-\lipsum[1] 
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.7\textwidth]{example-image-a}
-    \caption{This is a caption for a figure!}
-    \label{fig:appendix_example_a}
-\end{figure}
+\section{Useful Things}
+\subsection{(Cross-) Covariance Matrix}
+Let us remember the definition of the cross-covariance matrix corresponding to two vectors of random variables $\vec{v}$ and $\vec{w}$:
+\begin{align*}
+    \CrossCovMat{v}{w} \coloneqq \begin{pmatrix}
+        \Cov{v_1}{w_1} & \Cov{v_1}{w_2} & \hdots \\
+        \Cov{v_2}{w_1} & \Cov{v_2}{w_2} & \hdots \\
+        \vdots         &\vdots
+    \end{pmatrix}.
+\end{align*}
+Note that this reduces to a covariance matrix if $\vec{v} = \vec{w}$. In the following, we will list some properties of cross-covariance matrices, which will come in handy in the following sections. Since the covariance is linear, we immediately see that 
+\begin{align}
+    \label{eq:crosscovlinearity}
+     \CrossCovMat{\left(\sum_i v_i\right)}{w} = \sum_i \CrossCovMat{v_i}{w}.
+\end{align}
+We further deduce from the definition that 
+\begin{align}
+\label{eq:crosscovtranspose}
+    \CrossCovMat{v}{w} = \CrossCovMat{w}{v}^\transpose.
+\end{align}
+Deriving the behavior of cross-covariance matrices under linear transformations is a bit more involved. Say two vectors $\tilde{\vec{v}}$ and $\tilde{\vec{w}}$ are related to the random vectors $\vec{v}$ and $\vec{w}$ like 
+\begin{align*}
+    \tilde{\vec{v}} &= \mat{A} \vec{v} + \vec{c} \\
+    \tilde{\vec{w}} &= \mat{B} \vec{w} + \vec{d},
+\end{align*}
+where $\mat{A}$ and $\mat{B}$ are constant matrices and $\vec{c}$ and $\vec{d}$ are constant vectors.
+%
+The element in the $i$-th row and in the $j$-th column of the corresponding cross-covariance matrix then becomes
+\begin{align*}
+    \left(\CrossCovMat{\tilde{v}}{\tilde{w}}\right)_{ij} 
+        &= \Cov{\vec{a_i}\cdot\vec{v}+c_i}{\vec{b_j}\cdot\vec{w}+d_j} \\
+        &= \Cov{\vec{a_i}\cdot\vec{v}}{\vec{b_j}\cdot\vec{w}}
+\end{align*}
+where $\vec{a_i}$($\vec{b_j}$) denotes the $i$($j$)-th row vector of $\mat{A}$($\mat{B}$). Thanks to the linearity of the covariance in both its arguments, this expression can be simplified further:
+\begin{align*}
+    \left(\CrossCovMat{\tilde{v}}{\tilde{w}}\right)_{ij} 
+        &= (a_i)_\alpha (b_j)_\beta \Cov{v_\alpha}{w_\beta} \\
+        &= \vec{a_i}^{\transpose} \CrossCovMat{v}{w} \vec{b_j},
+\end{align*}
+where the Greek subscripts indicate the vector components and we used the Einstein summation convention. The covariance matrix of $\vec{w}$ thus becomes 
+\begin{align}
+\label{eq:crosscovlintraf}
+    \CrossCovMat{\tilde{v}}{\tilde{w}} = \mat{A} \CrossCovMat{v}{w} \mat{B}^{\transpose}.
+\end{align}
+%
+As will become clear later on, it is also useful to study how covariance matrices behave if we introduce an additional summation:
+\begin{align*}
+    \vec{\tilde{v}} = \sum_m \mat{A^m} \vec{v^m},
+\end{align*}
+%
+where the $\vec{v^n}$ are \textit{independent} random vectors. Then, the element in the $i$-th row and in the $j$-th column of the covariance matrix of $\vec{\tilde{v}}$ reads
+\begin{align*}
+    \left(\CovMat{\tilde{v}}\right)_{ij} 
+        &= \Cov{\sum_m\vec{a_i^m}\cdot\vec{v^m}}{\sum_l\vec{a_j^l}\cdot\vec{v^l}} \\
+        &= \sum_{m l} \Cov{\vec{a_i^m}\cdot\vec{v^m}}{\vec{a_j^l}\cdot\vec{v^l}} \\
+        &= \sum_{m l} (a_i^m)_\alpha (a_j^l)_\beta \Cov{v_\alpha^m}{v_\beta^l} \\
+        &= \sum_{m l} \left(\vec{a_i^m}\right)^{\transpose} \CrossCovMat{\vec{v^m}}{\vec{v^l}} \ \vec{a_j^l} \\
+        &= \sum_{m l} \left(\vec{a_i^m}\right)^{\transpose} \delta_{m l} \ \CovMat{\vec{v^l}} \ \vec{a_j^l} \\
+        &= \sum_{m} \left(\vec{a_i^m}\right)^{\transpose} \CovMat{\vec{v^m}} \ \vec{a_j^m}
+\end{align*}
+where we used that the covariance of independent variables vanishes by definition. The entire covariance matrix becomes 
+\begin{align}
+\label{eq:covlintraf}
+    \CovMat{\tilde{v}} = \sum_{m} \mat{A^m} \ \CovMat{\vec{v^m}} \left(\mat{A^m}\right)^{\transpose}.
+\end{align}
+%
+%
+\section{Billoir Vertex Fitting}
+\subsection{Least Squares Updates}
+Let start by stating the results from Ref.~\cite{billoir1992fast}:
+\begin{align}
+\begin{split}
+\label{eq:implicit_Billoir}
+    \ABilloir \dVBilloir + \sum_i \BBilloir{i} \dpBilloir{i} &= \TBilloir \\
+    \BBilloir{i}^{\transpose} \dVBilloir + \CBilloir{i} \dpBilloir{i} &= \UBilloir{i},
+\end{split}
+\end{align}
+where 
+\begin{align*}
+    \ABilloir = \sum_i \DBilloir{i}^{\transpose} \WBilloir{i} \DBilloir{i}, \quad
+    \BBilloir{i} = \DBilloir{i}^{\transpose} \WBilloir{i} \EBilloir{i} 
+    \quad
+    \CBilloir{i} = \EBilloir{i}^{\transpose} \WBilloir{i} \EBilloir{i} 
+    \\
+    \TBilloir = \sum_i \DBilloir{i}^{\transpose} \WBilloir{i} \dqBilloir{i} 
+    \quad
+    \UBilloir{i} = \EBilloir{i}^{\transpose} \WBilloir{i} \dqBilloir{i}.
+\end{align*}
+%
+It should be noted that $\CBilloir{i}$ does not correspond to the covariance matrix of the track parameters. From Eqs.~\ref{eq:implicit_Billoir}, we find for the update of the vertex position and the momenta:
+\begin{align*}
+    \dVBilloir &= \left( \ABilloir - \sum_i \BBilloir{i} \CBilloir{i}^{-1} \BBilloir{i}^\transpose \right)^{-1} \left( \TBilloir - \sum_i \BBilloir{i} \CBilloir{i}^{-1} \UBilloir{i} \right) \\
+    \dpBilloir{i} &= \CBilloir{i}^{-1} \left( \UBilloir{i} - \BBilloir{i}^\transpose \dVBilloir \right).
+\end{align*}
+%
+\subsection{Covariances of the Fit Parameters}
+Let us now compute the covariance matrix associated with the vertex estimate. We have
+\begin{align*}
+    \CovMat{\dqBilloir{i}} 
+        &= \CovMat{\measParamsBilloir{i}} \\
+        &= \WBilloir{i}^{-1},
+\end{align*}
+since the weight matrix $\WBilloir{i}$ is the inverse of the track parameter covariance matrix. Since the measurement errors are independent from each other, we can combine Eq.~\ref{eq:covlintraf} to obtain the covariance matrix of the vertex position. Abbreviating
+\begin{align*}
+    \mat{P} = \left( \ABilloir - \sum_i \BBilloir{i} \CBilloir{i}^{-1} \BBilloir{i}^\transpose \right)^{-1}
+\end{align*}
+and noting the $\mat{P}$ as well as $\WBilloir{i}$ and $\CBilloir{i}$ are symmetric, we find
+\begin{align*}
+    \CovMat{V} 
+        &= \CovMat{\dVBilloir} \\
+        &= \mat{P} \sum_i \left(\DBilloir{i}^{\transpose} \WBilloir{i} - \BBilloir{i} \CBilloir{i}^{-1}  \EBilloir{i}^{\transpose} \WBilloir{i}\right) \CovMat{\dqBilloir{i}}  \left(\DBilloir{i}^{\transpose} \WBilloir{i} - \BBilloir{i} \CBilloir{i}^{-1}  \EBilloir{i}^{\transpose} \WBilloir{i}\right)^\transpose \mat{P}^\transpose \\
+        &= \mat{P} \sum_i \left(
+        \DBilloir{i}^{\transpose} \WBilloir{i} 
+        - \BBilloir{i} \CBilloir{i}^{-1}  \EBilloir{i}^{\transpose} \WBilloir{i}\right) 
+        \WBilloir{i}^{-1} 
+        \left(\WBilloir{i} \DBilloir{i} 
+        - \WBilloir{i} \EBilloir{i} \CBilloir{i}^{-1} \BBilloir{i}^\transpose \right) 
+        \mat{P} \\
+        &= \mat{P} \sum_i \Big(
+        \DBilloir{i}^{\transpose} \WBilloir{i} \DBilloir{i} 
+        - \DBilloir{i}^{\transpose} \WBilloir{i} \EBilloir{i} \CBilloir{i}^{-1} \BBilloir{i}^\transpose \\
+        &\hphantom{= \mat{P} \sum_i \Big(} - \BBilloir{i} \CBilloir{i}^{-1}  \EBilloir{i}^{\transpose} \WBilloir{i} \DBilloir{i}
+        +\BBilloir{i} \CBilloir{i}^{-1}  \EBilloir{i}^{\transpose} \WBilloir{i} \EBilloir{i} \CBilloir{i}^{-1} \BBilloir{i}^\transpose
+        \Big) \mat{P} \\ 
+        &= \mat{P} \sum_i \Big(
+        \DBilloir{i}^{\transpose} \WBilloir{i} \DBilloir{i} 
+        - \BBilloir{i} \CBilloir{i}^{-1} \BBilloir{i}^\transpose  
+        - \BBilloir{i} \CBilloir{i}^{-1} \BBilloir{i}^\transpose
+        +\BBilloir{i} \CBilloir{i}^{-1}  \CBilloir{i} \CBilloir{i}^{-1} \BBilloir{i}^\transpose
+        \Big) \mat{P} \\
+        &= \mat{P} \sum_i \Big(
+        \DBilloir{i}^{\transpose} \WBilloir{i} \DBilloir{i} 
+        - \BBilloir{i} \CBilloir{i}^{-1} \BBilloir{i}^\transpose  
+        \Big) \mat{P} \\
+        &= \mat{P} \ \mat{P}^{-1} \ \mat{P} \\
+        &= \mat{P}.  
+\end{align*}
+%
+Before we compute the cross-covariance matrix $\CrossCovMat{\dVBilloir}{\dpBilloir{i}}$, let us do an auxiliary calculation 
+\begin{align*}
+    \CrossCovMat{\dVBilloir}{\dqBilloir{i}} 
+        &= \mat{P} \left(\sum_j \left(\DBilloir{j}^\transpose \WBilloir{j} - \BBilloir{j} \CBilloir{j}^{-1} \EBilloir{j}^\transpose \WBilloir{j}\right)\right) \CrossCovMat{\dqBilloir{j}}{\dqBilloir{i}} \\
+        &= \mat{P} \left(\sum_j \left(\DBilloir{j}^\transpose \WBilloir{j} - \BBilloir{j} \CBilloir{j}^{-1} \EBilloir{j}^\transpose \WBilloir{j}\right)\right) \delta_{ij} \WBilloir{i}^{-1} \\
+        &= \mat{P} \left(\DBilloir{i}^\transpose - \BBilloir{i} \CBilloir{i}^{-1} \EBilloir{i}^\transpose\right),
+\end{align*}
+where we used Eq.~\ref{eq:crosscovlintraf} and the statistical independence of the error terms $\dqBilloir{i}$. Then 
+\begin{align*}
+    \CrossCovMat{V}{p_i} 
+        &= \CrossCovMat{\dVBilloir}{\dpBilloir{i}} \\
+        &= \CrossCovMat{\dVBilloir}{\dqBilloir{i}} \left( \CBilloir{i}^{-1} \EBilloir{i}^\transpose \WBilloir{i} \right)^\transpose - \CrossCovMat{\dVBilloir}{\dVBilloir} \left( \CBilloir{i}^{-1} \BBilloir{i}^\transpose \right)^\transpose \\
+        &= \mat{P} \left(\DBilloir{i}^\transpose - \BBilloir{i} \CBilloir{i}^{-1} \EBilloir{i}^\transpose\right) \WBilloir{i} \EBilloir{i} \CBilloir{i}^{-1} - \mat{P} \BBilloir{i} \CBilloir{i}^{-1} \\
+        &= \mat{P} \BBilloir{i} \CBilloir{i}^{-1} - \mat{P} \BBilloir{i} \CBilloir{i}^{-1} 
+        \CBilloir{i} \CBilloir{i}^{-1} - \mat{P} \BBilloir{i} \CBilloir{i}^{-1} \\
+        &= - \mat{P} \BBilloir{i} \CBilloir{i}^{-1}.
+\end{align*}
+%
+To find the cross-covariance matrix of the track momenta, we use Eqs.~\ref{eq:crosscovlinearity}, \ref{eq:crosscovtranspose}, and \ref{eq:crosscovlintraf} to obtain
+\begin{align*}
+    \CrossCovMat{p_i}{p_j}
+        &= \CrossCovMat{\dpBilloir{i}}{\dpBilloir{j}} \\
+        &= \CBilloir{i}^{-1} \EBilloir{i}^\transpose \WBilloir{i} \CrossCovMat{\dqBilloir{i}}{\dqBilloir{j}} \left( \CBilloir{j}^{-1} \EBilloir{j}^\transpose \WBilloir{j} \right)^\transpose + \CBilloir{i}^{-1} \BBilloir{i}^\transpose \CovMat{\dVBilloir} \left(\CBilloir{j}^{-1} \BBilloir{j}^\transpose\right)^\transpose \\
+        &\hphantom{=}- \CBilloir{i}^{-1} \BBilloir{i}^\transpose \CrossCovMat{\dVBilloir}{\dqBilloir{j}} \left( \CBilloir{j}^{-1} \EBilloir{j}^\transpose \WBilloir{j} \right)^\transpose - \CBilloir{i}^{-1} \EBilloir{i}^\transpose \WBilloir{i} \CrossCovMat{\dqBilloir{i}}{\dVBilloir} \left(\CBilloir{j}^{-1} \BBilloir{j}^\transpose\right)^\transpose \\
+        &= \CBilloir{i}^{-1} \EBilloir{i}^\transpose \WBilloir{i} \delta_{ij} \WBilloir{i}^{-1} \WBilloir{j} \EBilloir{j} \CBilloir{j}^{-1} + \CBilloir{i}^{-1} \BBilloir{i}^\transpose \mat{P} \BBilloir{j} \CBilloir{j}^{-1} \\
+        &\hphantom{=}- \CBilloir{i}^{-1} \BBilloir{i}^\transpose \mat{P} \left(\DBilloir{j}^\transpose - \BBilloir{j} \CBilloir{j}^{-1} \EBilloir{j}^\transpose\right) \WBilloir{j} \EBilloir{j} \CBilloir{j}^{-1} \\
+        &\hphantom{=}- \CBilloir{i}^{-1} \EBilloir{i}^\transpose \WBilloir{i} \left(\DBilloir{i}^\transpose - \BBilloir{i} \CBilloir{i}^{-1} \EBilloir{i}^\transpose\right)^\transpose \mat{P}^\transpose \BBilloir{j} \CBilloir{j}^{-1} \\
+        &= \delta_{ij} \ \CBilloir{i}^{-1} \CBilloir{i} \CBilloir{i}^{-1} + \CBilloir{i}^{-1} \BBilloir{i}^\transpose \mat{P} \BBilloir{j} \CBilloir{j}^{-1} \\
+        &\hphantom{=}- \CBilloir{i}^{-1} \BBilloir{i}^\transpose \mat{P} \DBilloir{j}^\transpose \WBilloir{j} \EBilloir{j} \CBilloir{j}^{-1} + \CBilloir{i}^{-1} \BBilloir{i}^\transpose \mat{P} \BBilloir{j} \CBilloir{j}^{-1} \EBilloir{j}^\transpose \WBilloir{j} \EBilloir{j} \CBilloir{j}^{-1} \\
+        &\hphantom{=}- \CBilloir{i}^{-1} \EBilloir{i}^\transpose \WBilloir{i} \left(\DBilloir{i} - \EBilloir{i} \CBilloir{i}^{-1} \BBilloir{i}^\transpose\right) \mat{P} \BBilloir{j} \CBilloir{j}^{-1} \\
+        &= \delta_{ij} \ \CBilloir{i}^{-1} + \CBilloir{i}^{-1} \BBilloir{i}^\transpose \mat{P} \BBilloir{j} \CBilloir{j}^{-1} \\
+        &\hphantom{=}- \CBilloir{i}^{-1} \BBilloir{i}^\transpose \mat{P} \BBilloir{j} \CBilloir{j}^{-1} + \CBilloir{i}^{-1} \BBilloir{i}^\transpose \mat{P} \BBilloir{j} \CBilloir{j}^{-1} \\
+        &\hphantom{=}- \CBilloir{i}^{-1} \EBilloir{i}^\transpose \WBilloir{i} \DBilloir{i} \mat{P} \BBilloir{j} \CBilloir{j}^{-1} + \CBilloir{i}^{-1} \EBilloir{i}^\transpose \WBilloir{i} \EBilloir{i} \CBilloir{i}^{-1} \BBilloir{i}^\transpose \mat{P} \BBilloir{j} \CBilloir{j}^{-1} \\
+        &= \delta_{ij} \ \CBilloir{i}^{-1} + \CBilloir{i}^{-1} \BBilloir{i}^\transpose \mat{P} \BBilloir{j} \CBilloir{j}^{-1} \\
+        &\hphantom{=}+ 0 \\
+        &\hphantom{=}- \CBilloir{i}^{-1} \BBilloir{i}^\transpose \mat{P} \BBilloir{j} \CBilloir{j}^{-1} + \CBilloir{i}^{-1} \BBilloir{i}^\transpose \mat{P} \BBilloir{j} \CBilloir{j}^{-1} \\
+        &= \delta_{ij} \ \CBilloir{i}^{-1} + \CBilloir{i}^{-1} \BBilloir{i}^\transpose \mat{P} \BBilloir{j} \CBilloir{j}^{-1} \\
+        &= \delta_{ij} \ \CBilloir{i}^{-1} - \CBilloir{i}^{-1} \BBilloir{i}^\transpose \CrossCovMat{V}{p_j}.
+\end{align*}
+%
+These results coincide with the ones from Ch.~8 of Ref.~\cite{fruhwirth2021pattern} (note the different choice of notation). 
+%
 
 \printbibliography{}
 
